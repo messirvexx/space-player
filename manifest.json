@@ -1,0 +1,19 @@
+{
+  "id": "space-player",
+  "name": "Space Player Premium",
+  "short_name": "SpacePlayer",
+  "description": "Reproductor de música local con ecualizador avanzado y fondo espacial dinámico.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#05050a",
+  "theme_color": "#00f2fe",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3844/3844724.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

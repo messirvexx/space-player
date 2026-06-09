@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Player</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+</head>
+<body>
+
+    <canvas id="space-bg"></canvas>
+
+    <div class="player-container">
+        
+        <div class="nav-tabs">
+            <button id="tab-now-playing" class="tab-btn active">Reproduciendo Ahora</button>
+            <button id="tab-library" class="tab-btn">Biblioteca</button>
+        </div>
+
+        <hr class="nav-divider">
+
+        <div id="view-now-playing" class="view-section">
+            <header>
+                <label id="upload-btn" for="audio-upload">
+                    <span class="material-icons">add_to_photos</span> Importar Música
+                </label>
+                <input type="file" id="audio-upload" accept="audio/*" multiple style="display: none;">
+            </header>
+
+            <div class="album-art">
+                <span class="material-icons music-placeholder">music_note</span>
+            </div>
+
+            <div class="song-info">
+                <h2 id="song-title">Sin canciones</h2>
+                <h3 id="song-artist">Importa música para empezar</h3>
+            </div>
+
+            <div class="progress-area">
+                <input type="range" id="progress-bar" min="0" max="100" value="0">
+                <div class="time-stamps">
+                    <span id="current-time">0:00</span>
+                    <span id="total-duration">0:00</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="view-library" class="view-section hidden">
+            <div class="library-header">
+                <h3>Todas las Canciones</h3>
+            </div>
+            <div class="songs-list-container">
+                <ul id="songs-list">
+                    </ul>
+            </div>
+        </div>
+
+        <div class="bottom-controls-panel">
+            <button id="btn-settings" class="material-icons sub-btn">settings</button>
+            
+            <div class="main-audio-controls">
+                <button id="btn-shuffle" class="material-icons">shuffle</button>
+                <button id="btn-prev" class="material-icons">skip_previous</button>
+                <button id="btn-play-pause" class="material-icons play-main">play_arrow</button>
+                <button id="btn-next" class="material-icons">skip_next</button>
+                <button id="btn-repeat" class="material-icons">repeat</button>
+            </div>
+
+            <button id="btn-equalizer" class="material-icons sub-btn">equalizer</button>
+        </div>
+
+    </div>
+
+    <div id="modal-eq" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Ecualizador Premium</h4>
+                <button id="close-eq" class="material-icons">close</button>
+            </div>
+            <div class="eq-sliders">
+                <div class="slider-group">
+                    <input type="range" id="eq-bass" min="-10" max="10" value="0">
+                    <label>Graves</label>
+                </div>
+                <div class="slider-group">
+                    <input type="range" id="eq-mid" min="-10" max="10" value="0">
+                    <label>Medios</label>
+                </div>
+                <div class="slider-group">
+                    <input type="range" id="eq-treble" min="-10" max="10" value="0">
+                    <label>Agudos</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-settings" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>Configuraciones</h4>
+                <button id="close-settings" class="material-icons">close</button>
+            </div>
+            <div class="settings-options">
+                <button id="btn-clear-db" class="danger-btn">
+                    <span class="material-icons">delete_forever</span> Borrar toda la música
+                </button>
+                <p class="app-version">Space Player v1.0 - Hecho para hermanos</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

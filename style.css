@@ -1,0 +1,325 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+}
+
+body {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #ffffff;
+    overflow: hidden;
+    background-color: #05050a;
+}
+
+/* Lienzo del fondo dinámico */
+#space-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+}
+
+/* El chasis del reproductor (Contenedor estilo Vidrio Difuminado) */
+.player-container {
+    background: rgba(20, 20, 35, 0.45);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    width: 380px;
+    height: 680px;
+    padding: 25px;
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+}
+
+/* Pestañas superiores de navegación */
+.nav-tabs {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 5px;
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.3s;
+}
+
+.tab-btn.active {
+    color: #00f2fe;
+    text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+}
+
+.nav-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    margin-bottom: 15px;
+}
+
+/* Controladores de las secciones de pantalla */
+.view-section {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Botón flotante para importar archivos de música */
+#upload-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 13px;
+    cursor: pointer;
+    margin: 0 auto 15px auto;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: 0.2s;
+}
+
+#upload-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Espacio de la Carátula del Álbum */
+.album-art {
+    background: linear-gradient(135deg, #7f00ff 0%, #ff007f 100%);
+    width: 210px;
+    height: 210px;
+    margin: 15px auto;
+    border-radius: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 15px 35px rgba(127, 0, 255, 0.3);
+}
+
+.music-placeholder { font-size: 75px; color: white; }
+
+.song-info h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+}
+
+.song-info h3 {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 400;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* Línea de tiempo y barra de progreso */
+.progress-area input {
+    width: 100%;
+    accent-color: #00f2fe;
+    cursor: pointer;
+}
+
+.time-stamps {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+}
+
+/* Panel de control de mandos inferior */
+.bottom-controls-panel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 12px 18px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.main-audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bottom-controls-panel button {
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.6);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.bottom-controls-panel button:hover {
+    color: #00f2fe;
+}
+
+/* Botón central de reproducción */
+.main-audio-controls .play-main {
+    background: #ffffff;
+    color: #05050a;
+    font-size: 32px;
+    padding: 12px;
+    border-radius: 50%;
+    box-shadow: 0 5px 15px rgba(255,255,255,0.1);
+}
+
+.main-audio-controls .play-main:hover {
+    transform: scale(1.05);
+    background: #00f2fe;
+}
+
+.sub-btn { font-size: 24px; }
+
+/* Menú de lista en Biblioteca */
+.library-header h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    color: rgba(255,255,255,0.8);
+}
+
+.songs-list-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    height: 420px;
+    padding-right: 5px;
+}
+
+.songs-list-container::-webkit-scrollbar { width: 4px; }
+.songs-list-container::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+
+#songs-list li {
+    list-style: none;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.03);
+    margin-bottom: 8px;
+    border-radius: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border: 1px solid transparent;
+    transition: 0.2s;
+}
+
+#songs-list li:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(0, 242, 254, 0.2);
+}
+
+#songs-list li.playing {
+    background: rgba(0, 242, 254, 0.1);
+    border-color: #00f2fe;
+    color: #00f2fe;
+}
+
+/* Modales e Interfaces Flotantes */
+.modal {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(5, 5, 10, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+    border-radius: 32px;
+}
+
+.modal-content {
+    background: rgba(255, 255, 255, 0.05);
+    width: 88%;
+    padding: 22px;
+    border-radius: 24px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.modal-header button { background: none; border: none; color: white; cursor: pointer; }
+
+/* Controles del Ecualizador (Sliders Verticales) */
+.eq-sliders {
+    display: flex;
+    justify-content: space-around;
+    height: 200px;
+    align-items: center;
+}
+
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    justify-content: flex-end;
+}
+
+.slider-group input[type="range"] {
+    transform: rotate(-90deg); /* Voltea la barra de horizontal a vertical */
+    width: 120px;
+    height: 10px;
+    margin: 50px 0;
+    accent-color: #ff007f;
+    cursor: pointer;
+}
+
+.slider-group label { font-size: 13px; color: rgba(255,255,255,0.7); }
+
+/* Ventana de Ajustes */
+.settings-options { text-align: center; padding: 15px 0; }
+
+.danger-btn {
+    background: rgba(255, 79, 79, 0.15);
+    color: #ff4f4f;
+    border: 1px solid rgba(255, 79, 79, 0.25);
+    padding: 14px 20px;
+    border-radius: 14px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    width: 100%;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.danger-btn:hover { background: rgba(255, 79, 79, 0.25); }
+.app-version { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 35px; }

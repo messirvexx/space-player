@@ -1,4 +1,6 @@
+// ========================================================
 // 1. INICIALIZAR LA BASE DE DATOS LOCAL CON DEXIE
+// ========================================================
 const db = new Dexie("SpacePlayerDB");
 db.version(1).stores({
     songs: "++id, name, data"
@@ -42,7 +44,9 @@ let audioCtx;
 let trackNode;
 let bassFilter, midFilter, trebleFilter;
 
+// ========================================================
 // 2. ANIMACIÓN DEL FONDO ESPACIAL (Canvas 2D)
+// ========================================================
 const canvas = document.getElementById('space-bg');
 const ctx = canvas.getContext('2d');
 let stars = [];
@@ -66,7 +70,6 @@ for (let i = 0; i < 60; i++) {
 }
 
 function animateSpace() {
-    // Dibujamos el lienzo oscuro del espacio profundo
     let gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
     gradient.addColorStop(0, '#04040c');
     gradient.addColorStop(0.5, '#090716');
@@ -74,7 +77,6 @@ function animateSpace() {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Dibujar y actualizar la física de cada estrella
     stars.forEach(star => {
         ctx.beginPath();
         ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
@@ -87,7 +89,6 @@ function animateSpace() {
         if (star.alpha < 0.1) star.alpha = 0.1;
         if (star.alpha > 0.8) star.alpha = 0.8;
 
-        // Si la estrella cae al final de la pantalla, reaparece arriba
         if (star.y > canvas.height) {
             star.y = 0;
             star.x = Math.random() * canvas.width;
@@ -98,37 +99,34 @@ function animateSpace() {
 }
 animateSpace();
 
+// ========================================================
 // 3. ENRUTAMIENTO DEL ECUALIZADOR HARDWARE
+// ========================================================
 function initAudioContext() {
     if (audioCtx) return;
 
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     trackNode = audioCtx.createMediaElementSource(audio);
 
-    // Filtro para controlar Bajos / Graves
     bassFilter = audioCtx.createBiquadFilter();
     bassFilter.type = "lowshelf";
     bassFilter.frequency.value = 220;
 
-    // Filtro para controlar Medios
     midFilter = audioCtx.createBiquadFilter();
     midFilter.type = "peaking";
     midFilter.Q.value = 1;
     midFilter.frequency.value = 1100;
 
-    // Filtro para controlar Agudos / Brillos
     trebleFilter = audioCtx.createBiquadFilter();
     trebleFilter.type = "highshelf";
     trebleFilter.frequency.value = 4500;
 
-    // Conexión en cadena de los nodos de sonido
     trackNode.connect(bassFilter);
     bassFilter.connect(midFilter);
     midFilter.connect(trebleFilter);
     trebleFilter.connect(audioCtx.destination);
 }
 
-// Escuchadores para los potenciómetros del Ecualizador
 document.getElementById('eq-bass').addEventListener('input', (e) => {
     if(bassFilter) bassFilter.gain.value = e.target.value;
 });
@@ -139,7 +137,9 @@ document.getElementById('eq-treble').addEventListener('input', (e) => {
     if(trebleFilter) trebleFilter.gain.value = e.target.value;
 });
 
+// ========================================================
 // 4. CONTROL DE PANTALLAS (Pestañas superiores)
+// ========================================================
 tabNowPlaying.addEventListener('click', () => {
     tabNowPlaying.classList.add('active');
     tabLibrary.classList.remove('active');
@@ -152,10 +152,9 @@ tabLibrary.addEventListener('click', () => {
     tabNowPlaying.classList.remove('active');
     viewLibrary.classList.remove('hidden');
     viewNowPlaying.classList.add('hidden');
-    renderLibrary(); // Muestra la lista de canciones actualizada al cambiar de pestaña
+    renderLibrary();
 });
 
-// Control de apertura de interfaces flotantes (Modales)
 btnEqualizer.addEventListener('click', () => { 
     initAudioContext(); 
     modalEq.classList.remove('hidden'); 
@@ -165,7 +164,9 @@ closeEq.addEventListener('click', () => modalEq.classList.add('hidden'));
 btnSettings.addEventListener('click', () => modalSettings.classList.remove('hidden'));
 closeSettings.addEventListener('click', () => modalSettings.classList.add('hidden'));
 
-// 5. CONTROLADORES DE LA BIBLIOTECA DE CANCIONES Y AUDIO
+// ========================================================
+// 5. CONTROLADORES DE LA BIBLIOTECA Y REPRODUCCIÓN
+// ========================================================
 async function loadPlaylist() {
     playlist = await db.songs.toArray();
 }
@@ -192,20 +193,19 @@ async function renderLibrary() {
             currentSongIndex = index;
             loadSong(currentSongIndex);
             playSong();
-            tabNowPlaying.click(); // Regresa de inmediato a la pantalla principal de reproducción
+            tabNowPlaying.click();
         });
         songsList.appendChild(li);
     });
 }
 
-// Carga y guardado de canciones en la base de datos
 audioUpload.addEventListener('change', async (e) => {
     const files = Array.from(e.target.files);
     if (files.length === 0) return;
 
     for (const file of files) {
         await db.songs.add({
-            name: file.name.replace(/\.[^/.]+$/, ""), // Almacena el nombre limpio de la canción
+            name: file.name.replace(/\.[^/.]+$/, ""),
             data: file
         });
     }
@@ -213,7 +213,6 @@ audioUpload.addEventListener('change', async (e) => {
     await loadPlaylist();
     await renderLibrary();
     
-    // Reproduce la primera canción del bloque importado
     currentSongIndex = playlist.length - files.length;
     loadSong(currentSongIndex);
     playSong();
@@ -225,9 +224,11 @@ function loadSong(index) {
     songTitle.innerText = song.name;
     songArtist.innerText = "Biblioteca Local";
     
-    // Destruimos URLs de caché viejas para liberar memoria RAM en el celular
     if(audio.src) URL.revokeObjectURL(audio.src);
     audio.src = URL.createObjectURL(song.data);
+
+    // Actualizar metadatos del sistema al cargar canción nueva
+    actualizarPantallaDeBloqueo();
 }
 
 function playSong() {
@@ -236,11 +237,54 @@ function playSong() {
     if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
     audio.play();
     playPauseBtn.innerText = 'pause';
+    
+    // Sincronizar estado de reproducción con el sistema operativo
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "playing";
+    }
 }
 
 function pauseSong() {
     audio.pause();
     playPauseBtn.innerText = 'play_arrow';
+    
+    if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = "paused";
+    }
+}
+
+// 🔥 FUNCIÓN DE INTEGRACIÓN MAESTRA PARA IPHONE (MEDIA SESSION)
+function actualizarPantallaDeBloqueo() {
+    if ('mediaSession' in navigator && playlist[currentSongIndex]) {
+        const song = playlist[currentSongIndex];
+        
+        navigator.mediaSession.metadata = new MediaMetadata({
+            title: song.name,
+            artist: "Biblioteca Local",
+            album: "Space Player Premium",
+            artwork: [
+                { src: 'https://img.icons8.com/fluent/512/space-hover.png', sizes: '512x512', type: 'image/png' }
+            ]
+        });
+
+        // Configurar acciones de los botones de hardware de iOS
+        navigator.mediaSession.setActionHandler('play', playSong);
+        navigator.mediaSession.setActionHandler('pause', pauseSong);
+        
+        navigator.mediaSession.setActionHandler('previoustrack', () => {
+            if (playlist.length === 0) return;
+            currentSongIndex = (currentSongIndex - 1 + playlist.length) % playlist.length;
+            loadSong(currentSongIndex);
+            playSong();
+        });
+
+        navigator.mediaSession.setActionHandler('nexttrack', () => {
+            if (playlist.length === 0) return;
+            currentSongIndex = (currentSongIndex + 1) % playlist.length;
+            loadSong(currentSongIndex);
+            playSong();
+        });
+    }
 }
 
 playPauseBtn.addEventListener('click', () => {
@@ -267,7 +311,9 @@ prevBtn.addEventListener('click', () => {
     playSong();
 });
 
-// CONTROL DE LA LÍNEA DE TIEMPO DEL AUDIO
+// ========================================================
+// 6. CONTROL DE LA LÍNEA DE TIEMPO
+// ========================================================
 audio.addEventListener('timeupdate', () => {
     if (isNaN(audio.duration)) return;
     progressBar.value = (audio.currentTime / audio.duration) * 100;
@@ -290,7 +336,6 @@ progressBar.addEventListener('input', () => {
 
 audio.addEventListener('ended', () => nextBtn.click());
 
-// BORRADO TOTAL DE LA BASE DE DATOS DESDE AJUSTES
 btnClearDb.addEventListener('click', async () => {
     if(confirm("¿Seguro que quieres borrar toda la música guardada?")) {
         await db.songs.clear();
@@ -304,18 +349,26 @@ btnClearDb.addEventListener('click', async () => {
     }
 });
 
-// CARGA INICIAL NADA MÁS ARRANCAR LA WEB
 window.onload = async () => {
     await loadPlaylist();
     if(playlist.length > 0) {
         loadSong(0);
     }
 };
-// REGISTRO DEL SERVICE WORKER PARA VOLVERLO PWA INSTALABLE
+
+// ========================================================
+// 7. REGISTRO DEL SERVICE WORKER (PWA)
+// ========================================================
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js')
-            .then(reg => console.log('¡PWA lista para instalar con éxito!', reg))
+        navigator.serviceWorker.register('sw.js')
+            .then(reg => {
+                console.log('¡PWA lista para instalar con éxito!', reg);
+                // Si el service worker cambió, forzar su activación inmediata
+                if (reg.waiting) {
+                    reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+                }
+            })
             .catch(err => console.error('Error al registrar PWA:', err));
     });
 }
